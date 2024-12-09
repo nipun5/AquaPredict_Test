@@ -8,7 +8,7 @@ app = FastAPI(
     description="Predicting Water Quality Parameters"
 )
 
-with open("C:/Users/jainn/OneDrive/Documents/AquaPredict/model.pkl", "rb") as f:
+with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
 @app.get("/")
