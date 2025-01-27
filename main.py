@@ -34,7 +34,7 @@ def predict(water: WaterPredict):
     else:
         return {"Prediction": "Not Potable"}
 
-// React Dashboard Component
+# React Dashboard Component
 import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
