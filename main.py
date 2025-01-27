@@ -23,13 +23,12 @@ def predict_file(file: UploadFile = File(...)):
     contents = file.file.read()
     input_data = pd.read_csv(io.BytesIO(contents))
 
+    # Store original columns for output
+    original_data = input_data.copy()
+
     # Drop the target column 'Potability' or any extra columns if present
     if "Potability" in input_data.columns:
         input_data = input_data.drop(columns=["Potability"])
-
-    # Drop the 'Region' column if present
-    if "Region" in input_data.columns:
-        input_data = input_data.drop(columns=["Region"])
 
     # Define the expected columns
     expected_columns = [
@@ -38,7 +37,7 @@ def predict_file(file: UploadFile = File(...)):
         "Trihalomethanes", "Turbidity"
     ]
 
-    # Ensure only the required columns are used
+    # Ensure only the required columns are used and drop others temporarily
     input_data = input_data[expected_columns]
 
     # Handle missing values (fill with mean)
@@ -46,11 +45,13 @@ def predict_file(file: UploadFile = File(...)):
 
     # Perform predictions
     predictions = model.predict(input_data)
-    input_data["Potability or Not"] = ["Yes" if pred == 1 else "No" for pred in predictions]
+
+    # Add predictions to the original data
+    original_data["Potability or Not"] = ["Yes" if pred == 1 else "No" for pred in predictions]
 
     # Save the resulting DataFrame to a new CSV
     output_file_path = "output_with_predictions.csv"
-    input_data.to_csv(output_file_path, index=False)
+    original_data.to_csv(output_file_path, index=False)
 
     # Return the resulting CSV file as a response
     return FileResponse(output_file_path, media_type="text/csv", filename="predictions.csv")
