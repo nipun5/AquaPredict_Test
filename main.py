@@ -27,6 +27,10 @@ def predict_file(file: UploadFile = File(...)):
     if "Potability" in input_data.columns:
         input_data = input_data.drop(columns=["Potability"])
 
+    # Drop the 'Region' column if present
+    if "Region" in input_data.columns:
+        input_data = input_data.drop(columns=["Region"])
+
     # Define the expected columns
     expected_columns = [
         "ph", "Hardness", "Solids", "Chloramines",
