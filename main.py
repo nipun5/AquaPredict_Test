@@ -47,7 +47,7 @@ def predict_file(file: UploadFile = File(...)):
     predictions = model.predict(input_data)
 
     # Add predictions to the original data
-    original_data["Potability or Not"] = ["Yes" if pred == 1 else "No" for pred in predictions]
+    original_data["Potable"] = ["Yes" if pred == 1 else "No" for pred in predictions]
 
     # Save the resulting DataFrame to a new CSV
     output_file_path = "output_with_predictions.csv"
