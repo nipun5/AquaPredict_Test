@@ -3,14 +3,30 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse
 import pickle
 import io
+import mlflow
+import os
 
 app = FastAPI(
     title="API for AquaPredict",
     description="Predicting Water Quality Parameters"
 )
 
-with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
+# Set the MLflow tracking URI
+dagshub_url = "https://dagshub.com"
+repo_owner = "nipun5"
+repo_name = "AquaPredict_CDAC"
+dagshub_token = "f1bc8f2f71568383b82e0ec42eb6bad23d3b1fa4"
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
+
+# Load the latest model from MLflow
+def load_model():
+    client = mlflow.tracking.MlflowClient()
+    versions = client.get_latest_versions("Best Model", stages=["Production"])
+    run_id = versions[0].run_id
+    print(run_id)
+    return mlflow.pyfunc.load_model(f"runs:/{run_id}/Best Model")
+
+model = load_model()
 
 @app.get("/", response_class=HTMLResponse)
 def index():
