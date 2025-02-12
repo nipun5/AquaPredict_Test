@@ -56,7 +56,6 @@ def predict_file(file: UploadFile = File(...)):
     # Ensure only the required columns are used and drop others temporarily
     input_data = input_data[expected_columns]
 
-    # Handle missing values (fill with mean)
     input_data = input_data.fillna(input_data.mean())
 
     # Perform predictions
@@ -69,5 +68,17 @@ def predict_file(file: UploadFile = File(...)):
     output_file_path = "output_with_predictions.csv"
     original_data.to_csv(output_file_path, index=False)
 
-    # Return the resulting CSV file as a response
-    return FileResponse(output_file_path, media_type="text/csv", filename="predictions.csv")
+    # Calculate the overall probabilities
+    potable_prob = sum(predictions) / len(predictions)
+    non_potable_prob = 1 - potable_prob
+
+    # Return the probabilities and the CSV file as a response
+    return {
+        "potable_probability": potable_prob,
+        "non_potable_probability": non_potable_prob,
+        "file_url": f"/download/{output_file_path}"
+    }
+
+@app.get("/download/{file_path:path}")
+def download_file(file_path: str):
+    return FileResponse(file_path, media_type="text/csv", filename="predictions.csv")
